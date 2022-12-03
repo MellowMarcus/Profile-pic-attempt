@@ -105,7 +105,7 @@ def search():
 
 
 #Login
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('user/login', methods=['GET', 'POST'])
 def login():
 	form = LoginForm()
 	if form.validate_on_submit():
@@ -124,12 +124,18 @@ def login():
 	return render_template('login.html', form=form)
 
 #Logout
-@app.route('/logout', methods=['GET', 'POST'])
+@app.route('/user/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
 	logout_user()
 	flash("You Have Been Logged Out...")
 	return redirect(url_for('login'))
+
+@app.route('/user/upload', methods = ['GET', 'POST']
+@login_required
+def upload():
+	   form = UploadForm()
+	   
 
 
 #User Dashboard
@@ -181,7 +187,7 @@ def dashboard():
 
 
 
-
+#Delete
 @app.route('/delete/<int:id>')
 @login_required
 def delete(id):
@@ -267,7 +273,6 @@ def add_user():
 @app.route('/')
 def index():
 	
-
 # Invalid URL
 @app.errorhandler(404)
 def page_not_found(e):
