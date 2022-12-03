@@ -131,6 +131,9 @@ def logout():
 	flash("You Have Been Logged Out...")
 	return redirect(url_for('login'))
 
+@app.route('/App/Uploads/<filename>')
+def getFile(filename):
+	   return send_from_directory(app.config['UPLOADED_PHOTOS_DEST'], filename)
 
 @app.route('/user/upload', methods = ['GET', 'POST']
 @login_required
@@ -142,11 +145,9 @@ def upload():
 	   else:
 	   	file_url = None
 	   
-	   return render_template('upload.html')
+	   return render_template('upload.html', form = form, file_url = file_url)
 
-@app.route('/App/Uploads/<filename>')
-def getFile(filename):
-	   return send_from_directory(app.config['UPLOADED_PHOTOS_DEST'], filename)
+
 	   
 	   
 	   
