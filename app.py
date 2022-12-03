@@ -138,6 +138,10 @@ def upload():
 	   form = UploadForm()
 	   if form.validate_on_submit():
 	   	filename = photos.save(form.photo.data)
+	   	file_url = url_for('getFile', filename=filename)
+	   else:
+	   	file_url = None
+	   
 	   return render_template('upload.html')
 
 @app.route('/App/Uploads/<filename>')
