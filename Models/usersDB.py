@@ -16,7 +16,7 @@ class User(db.Model, UserMixin):
   
 	def __init__(self, username, password_hash):
 		self.username = username
-		self.set_password(password_hash)
+		self.password(password_hash)
 	
 	def toJSON(self):
         	return{
