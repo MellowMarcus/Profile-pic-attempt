@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, EqualTo
-from flask_wtf.file import FileField, FileR
+from flask_wtf.file import FileField, FileRequired
 
 class SearchForm(FlaskForm):
 	searched = StringField("Searched", validators=[DataRequired()])
@@ -25,4 +25,5 @@ class PasswordForm(FlaskForm):
 	submit = SubmitField("Submit")
 
 class UploadForm(FlaskForm):
-	photo = FileField(validators=[FileAllowed(photos,'Image Files (.jpg, gif, png) Allowed'), FileRequired(
+	photo = FileField(validators=[FileAllowed(photos,'Image Files (.jpg, gif, png) Allowed'), FileRequired("File field should not be empty')
+	submit = SubmitField("Upload")												       
