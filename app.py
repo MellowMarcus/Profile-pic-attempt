@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, request, redirect, url_for
+from flask import Flask, render_template, flash, request, redirect, url_for,send_from_directory
 from flask_uploads import DOCUMENTS, IMAGES, TEXT, UploadSet, configure_uploads
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -142,7 +142,7 @@ def upload():
 
 @app.route('/App/Uploads/<filename>')
 def getFile(filename):
-	   return send_from_directory(app.config['UPLOADED_PHOTOS_DEST'], 
+	   return send_from_directory(app.config['UPLOADED_PHOTOS_DEST'], filename)
 	   
 	   
 	   
