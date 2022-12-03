@@ -1,22 +1,18 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, EqualTo
-from flask_wtf.file import FileField
+from flask_wtf.file import FileField, FileR
 
-# Create A Search Form
 class SearchForm(FlaskForm):
 	searched = StringField("Searched", validators=[DataRequired()])
 	submit = SubmitField("Submit")
 
-
-# Create Login Form
 class LoginForm(FlaskForm):
 	username = StringField("Username", validators=[DataRequired()])
 	password = PasswordField("Password", validators=[DataRequired()])
 	submit = SubmitField("Submit")
 
 
-# Create a Form Class
 class UserForm(FlaskForm):
 	username = StringField("Username", validators=[DataRequired()])
 	password_hash = PasswordField('Password', validators=[DataRequired(), EqualTo('password_hash2', message='Passwords Must Match!')])
@@ -27,3 +23,6 @@ class UserForm(FlaskForm):
 class PasswordForm(FlaskForm):
 	password_hash = PasswordField("What's Your Password", validators=[DataRequired()])
 	submit = SubmitField("Submit")
+
+class UploadForm(FlaskForm):
+	photo = FileField(validators=[FileAllowed(photos,'Image Files (.jpg, gif, png) Allowed'), FileRequired(
