@@ -1,51 +1,77 @@
 from flask import Flask, render_template, flash, request, redirect, url_for
-from datetime import datetime 
+from flask_uploads import DOCUMENTS, IMAGES, TEXT, UploadSet, configure_uploads
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from webforms import LoginForm, UserForm, PasswordForm, SearchForm
 from werkzeug.security import generate_password_hash, check_password_hash 
-from datetime import date
-from webforms import LoginForm, PostForm, UserForm, PasswordForm, NamerForm, SearchForm
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from webforms import LoginForm, PostForm, UserForm, PasswordForm, NamerForm
 from werkzeug.utils import secure_filename
+from datetime import date
+from datetime import datetime
 import uuid as uuid
 import os
 
-# Create a Flask Instance
-app = Flask(__name__)
+from App.database import create_db, get_migrate
 
-# Add Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+from App.controllers import (
+    setup_jwt
+)
 
-# Secret Key!
-app.config['SECRET_KEY'] = "my super secret key that no one is supposed to know"
+def loadConfig(app, config):
+    app.config['ENV'] = os.environ.get('ENV', 'DEVELOPMENT')
+    delta = 7
+    if app.config['ENV'] == "DEVELOPMENT":
+        app.config.from_object('App.config')
+        delta = app.config['JWT_EXPIRATION_DELTA']
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
+        app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+        app.config['DEBUG'] = os.environ.get('ENV').upper() != 'PRODUCTION'
+        app.config['ENV'] = os.environ.get('ENV')
+        delta = os.environ.get('JWT_EXPIRATION_DELTA', 7)
+        
+    app.config['JWT_EXPIRATION_DELTA'] = timedelta(days=int(delta))
+        
+    for key, value in config.items():
+        app.config[key] = config[key]
+	
+def create_app(config={}):
+    app = Flask(__name__, static_url_path='/static')
+    CORS(app)
+    loadConfig(app, config)
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.config['PREFERRED_URL_SCHEME'] = 'https'
+    app.config['UPLOADED_PHOTOS_DEST'] = "App/uploads"
+    photos = UploadSet('photos', TEXT + DOCUMENTS + IMAGES)
+    configure_uploads(app, photos)
+    add_views(app, views)
+    create_db(app)
+    login_manager=LoginManager(app)
+    login_manager.init_app(app)
+    migrate=get_migrate(app)
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(user_id)
+    setup_jwt(app)
+    app.app_context().push()
+    return app
 
-# Initialize The Database
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+app=create_app()
+app=Flask(__name__)
+login_manager=LoginManager(app) 
+login_manager.init_app(app)
+migrate=get_migrate(app)
 
-#Pictures
-UPLOAD_FOLDER = 'static/images/'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
 
 
 #VIEWS
 
-
-# Flask_Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-@login_manager.user_loader
-def load_user(user_id):
-	return Users.query.get(int(user_id))
-
-# Pass Stuff To Navbar
-@app.context_processor
-def base():
-	form = SearchForm()
-	return dict(form=form)
 
 #Admin
 @app.route('/admin')
@@ -308,7 +334,5 @@ class Users(db.Model, UserMixin):
 	def verify_password(self, password):
 		return check_password_hash(self.password_hash, password)
 
-	# Create A String
-	def __repr__(self):
-		return '<Name %r>' % self.name
-
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=True)	
