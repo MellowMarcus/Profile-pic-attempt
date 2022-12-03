@@ -74,7 +74,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 
 #Admin
-@app.route('/admin')
+@app.route('user/admin')
 @login_required
 def admin():
 	id = current_user.id
@@ -131,11 +131,14 @@ def logout():
 	flash("You Have Been Logged Out...")
 	return redirect(url_for('login'))
 
+
 @app.route('/user/upload', methods = ['GET', 'POST']
 @login_required
 def upload():
 	form = UploadForm()
 	if form.validate_on_submit():
+		filename = photos.save()
+	   
 		
 	   
 	   
