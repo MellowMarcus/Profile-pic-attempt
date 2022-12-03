@@ -135,11 +135,15 @@ def logout():
 @app.route('/user/upload', methods = ['GET', 'POST']
 @login_required
 def upload():
-	form = UploadForm()
-	if form.validate_on_submit():
-		filename = photos.save(form.photo.data)
+	   form = UploadForm()
+	   if form.validate_on_submit():
+	   	filename = photos.save(form.photo.data)
+	   return render_template('upload.html')
+
+@app.route('/App/Uploads/<filename>')
+def getFile(filename):
+	   return send_from_directory(app.config['UPLOADED_PHOTOS_DEST'], 
 	   
-		
 	   
 	   
 
